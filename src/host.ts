@@ -21,6 +21,7 @@ export async function runHost(opts: HostOptions): Promise<void> {
   const token = genToken();
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: '> ' });
   const ui = new UI(rl);
+  ui.hostName = opts.name;
 
   // ---- input queue feeding the agent loop ----
   const queue: string[] = [];

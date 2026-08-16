@@ -41,6 +41,7 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
     }
     switch (msg.t) {
       case 'welcome':
+        ui.hostName = msg.host;
         ui.print(bold(`✓ joined ${msg.host}'s session as ${opts.name}`));
         ui.print(dim(`in the room: ${msg.roster.join(', ')} — tools run on ${msg.host}'s machine`));
         if (msg.history.length > 0) {
