@@ -10,6 +10,8 @@ import { genToken, lanAddresses } from './util.js';
 export interface AttachOptions {
   name: string;
   port: number;
+  /** Require an invite token. Default is open mode: anyone on the network can join. */
+  withToken?: boolean;
 }
 
 export function stateFile(port: number): string {
@@ -39,11 +41,15 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
     process.exit(1);
   }
 
-  const token = genToken();
+  const token = opts.withToken ? genToken() : '';
   const guestNames = new Set<string>();
 
+  // Guest messages are injected wrapped in a bash fence with the text as a
+  // comment — renders as a compact code block in the host's terminal.
+  const wrapGuestMsg = (name: string, text: string) =>
+    '```bash\n' + text.split('\n').map((l) => `# [${name}] ${l}`).join('\n') + '\n```';
   const isGuestEcho = (text: string) => {
-    const m = text.match(/^\[([^\]]+)\]/);
+    const m = text.match(/^```bash\n# \[([^\]]+)\]/) ?? text.match(/^\[([^\]]+)\]/);
     return m !== null && guestNames.has(m[1]);
   };
 
@@ -70,7 +76,7 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
         return;
       }
       room.broadcast({ kind: 'chat', from: name, text });
-      inject(socketPath, msgToken, `[${name}] ${text}`).catch((err) => {
+      inject(socketPath, msgToken, wrapGuestMsg(name, text)).catch((err) => {
         log(`✗ inject failed (${err.message}) — was the claude session restarted? Restart copair attach.`);
         room.broadcast({ kind: 'status', text: `could not deliver to host session: ${err.message}` });
       });
@@ -131,9 +137,12 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
 
   writeState();
   const addrs = lanAddresses();
+  const suffix = (ip: string) =>
+    `${ip}${opts.port === 4747 ? '' : `:${opts.port}`}${token ? `#${token}` : ''}`;
   log(`copair attached to session (transcript: ${path.basename(transcript)})`);
   log(`invite (same wifi or VPN):`);
-  for (const ip of addrs) log(`  copair join ${ip}:${opts.port}#${token}`);
+  for (const ip of addrs) log(`  copair join ${suffix(ip)} --name <deras-namn>`);
+  if (!token) log(`open mode: anyone on the network can join — use --token to require a code`);
   log(`manage: copair ctl who|kick <name>|stop --port ${opts.port}`);
 }
 

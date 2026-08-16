@@ -7,10 +7,11 @@ npm install
 npm run build
 npm link
 
-mkdir -p "$HOME/.claude/skills/copair"
+mkdir -p "$HOME/.claude/skills/copair" "$HOME/.claude/commands"
 cp skill/copair/SKILL.md "$HOME/.claude/skills/copair/SKILL.md"
+cp commands/*.md "$HOME/.claude/commands/"
 
 echo ""
 echo "✓ copair installed"
-echo "  command:       copair --help"
-echo "  claude skill:  say \"invite <name>\" in a new claude session to share it"
+echo "  command:         copair --help"
+echo "  in claude:       /copair-invite  /copair-who  /copair-kick <name>  /copair-stop"

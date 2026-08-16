@@ -55,7 +55,8 @@ export class Room {
 
       if (msg.t === 'hello') {
         clearTimeout(timeout);
-        if (msg.token !== this.token) {
+        // Empty room token = open mode: anyone who can reach the port may join.
+        if (this.token && msg.token !== this.token) {
           this.send(ws, { t: 'denied', reason: 'bad token' });
           ws.close();
           return;

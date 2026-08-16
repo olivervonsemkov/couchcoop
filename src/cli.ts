@@ -64,7 +64,7 @@ async function main(): Promise<void> {
       return;
     }
     case 'attach':
-      await runAttach({ name, port });
+      await runAttach({ name, port, withToken: argv.includes('--token') });
       return;
     case 'statusline':
       runStatusline();

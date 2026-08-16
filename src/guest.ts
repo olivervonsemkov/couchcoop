@@ -10,10 +10,10 @@ export interface GuestOptions {
 }
 
 export function parseTarget(target: string): { url: string; token: string } | null {
-  const m = target.match(/^(?:ws:\/\/)?([^#/\s]+)#(.+)$/);
+  const m = target.match(/^(?:ws:\/\/)?([^#/\s]+?)(?:#(.+))?$/);
   if (!m) return null;
   const hostPort = m[1].includes(':') ? m[1] : `${m[1]}:4747`;
-  return { url: `ws://${hostPort}`, token: m[2] };
+  return { url: `ws://${hostPort}`, token: m[2] ?? '' };
 }
 
 export async function runGuest(opts: GuestOptions): Promise<void> {
