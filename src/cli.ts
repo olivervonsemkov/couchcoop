@@ -13,9 +13,9 @@ const HELP = `copair — invite a teammate into your live Claude Code session
 usage:
   copair attach                    share the claude session you're sitting in
                                    (run via Claude Code's Bash — ask claude to run it)
-  copair join <host:port#token>    join someone's session live from your terminal
-  copair fork <host:port#token>    copy the session and open it in your own claude
-                                   (full scrollable history; you talk to YOUR agent)
+  copair join <host[:port][#token]>   join someone's session live from your terminal
+  copair fork <host[:port][#token]>   copy the session and open it in your own claude
+                                      (full scrollable history; you talk to YOUR agent)
   copair ctl who|kick <name>|stop  manage a running attach daemon
   copair --solo                    standalone host mode (own agent loop, no claude UI)
 

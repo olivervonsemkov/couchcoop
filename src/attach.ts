@@ -137,7 +137,7 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
     `${ip}${opts.port === 4747 ? '' : `:${opts.port}`}${token ? `#${token}` : ''}`;
   log(`copair attached to session (transcript: ${path.basename(transcript)})`);
   log(`invite (same wifi or VPN):`);
-  for (const ip of addrs) log(`  copair join ${suffix(ip)} --name <deras-namn>`);
+  for (const ip of addrs) log(`  copair join ${suffix(ip)} --name <their-name>`);
   if (!token) log(`open mode: anyone on the network can join — use --token to require a code`);
   log(`manage: copair ctl who|kick <name>|stop --port ${opts.port}`);
 }

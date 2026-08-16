@@ -9,10 +9,10 @@ No accounts. No server. No cloud. Your machine **is** the server — works over 
 ```
   OLIVER (in claude, as usual)         JOHAN (guest)
 ┌─────────────────────────────┐
-│ > invite johan               │
+│ > /copair-invite             │
 │ ⚒ copair attach              │
 │ → copair join                │
-│   192.168.1.24:4747#a8f3     │──── Slack ────┐
+│   192.168.1.24               │──── Slack ────┐
 │                              │               ▼
 │ [copair] johan joined        │◄── ✓ joined oliver's session
 │                              │    (sees the whole conversation)
@@ -35,13 +35,13 @@ That builds the `copair` command and installs the claude skill. Requires Node 18
 
 ## Use
 
-**Host:** inside your normal `claude` session, just say *"invite johan"*. Claude starts the sidecar and gives you a join link like `copair join 192.168.1.24:4747#a8f3k2` — send it to your teammate (same wifi or shared VPN).
+**Host:** inside your normal `claude` session, run `/copair-invite`. Claude starts the sidecar and gives you a join command like `copair join 192.168.1.24` — send it to your teammate (same wifi or shared VPN).
 
 **Guest — two ways in:**
 
 ```sh
-copair join 192.168.1.24:4747#a8f3k2 --name johan   # live: sit in the host's session
-copair fork 192.168.1.24:4747#a8f3k2                # copy: open it in YOUR claude
+copair join 192.168.1.24 --name johan   # live: sit in the host's session
+copair fork 192.168.1.24                # copy: open it in YOUR claude
 ```
 
 - **join** — the shared room. You see everything live, and what you type lands in the host's session prefixed `[johan]`; the host's agent answers everyone. `// like this` chats humans-only (the agent never sees it). `/leave` to exit.
@@ -70,7 +70,7 @@ Joins/leaves are deliberately not announced inside the session (each announcemen
 - **Out:** it follows your session transcript (`~/.claude/projects/...jsonl`) and streams it to guests over a websocket it serves itself (default port `4747`).
 - **In:** guest messages are delivered into your live session through Claude Code's local messaging socket — the same channel Claude Code's own cross-session messaging uses.
 - **Fork:** on request it ships the full transcript; the guest's copair installs it as a local session and launches `claude --resume` on it.
-- The secret token in the invite URL is the only key. New share = new token.
+- Open by default: anyone who can reach the port can join. `copair attach --token` requires a secret invite code instead (`copair join <ip>#<code>`).
 
 Your session stays a completely normal Claude Code session: same UI, same permissions, same transcript, resumable as always.
 
@@ -80,7 +80,7 @@ Your session stays a completely normal Claude Code session: same UI, same permis
 
 ## Security notes
 
-- Anyone with the invite URL can join and **prompt an agent that runs tools on your machine** — and can fork a full copy of the transcript. Share it like an SSH key: with people you trust, over a private channel. `ctl stop` + a new invite rotates the token.
+- In default open mode, **anyone on your network** can join, prompt an agent that runs tools on your machine, and fork a full copy of the transcript. On networks you don't fully trust, use `copair attach --token` and share the code privately; `ctl stop` + a new attach rotates it.
 - Whatever's in your session (file contents, command output) is visible to guests. Invite accordingly.
 - The websocket is unencrypted (`ws://`) — fine on a LAN or inside a VPN tunnel; don't expose the port to the open internet.
 - Guest messages are input to your agent like any text you paste: your permission prompts remain the safety boundary, and only you can approve them.
