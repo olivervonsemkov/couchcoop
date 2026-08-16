@@ -1,0 +1,40 @@
+{
+  "name": "copair",
+  "version": "0.1.0",
+  "description": "Invite a teammate into your live Claude agent session. Pair programming through agents — same wifi or VPN, zero infra.",
+  "type": "module",
+  "bin": {
+    "copair": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "pair-programming",
+    "multiplayer",
+    "collaboration",
+    "agent",
+    "terminal"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.233",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/ws": "^8.5.0",
+    "typescript": "^5.6.0"
+  }
+}

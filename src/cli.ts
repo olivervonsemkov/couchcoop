@@ -1,0 +1,83 @@
+#!/usr/bin/env node
+import { runHost } from './host.js';
+import { runGuest } from './guest.js';
+import { runAttach } from './attach.js';
+import { runCtl } from './ctl.js';
+import { DEFAULT_PORT } from './protocol.js';
+import { defaultName } from './util.js';
+
+const HELP = `copair — invite a teammate into your live Claude Code session
+
+usage:
+  copair attach                    share the claude session you're sitting in
+                                   (run via Claude Code's Bash — ask claude to run it)
+  copair join <host:port#token>    join someone's session from your terminal
+  copair ctl who|kick <name>|stop  manage a running attach daemon
+  copair --solo                    standalone host mode (own agent loop, no claude UI)
+
+options:
+  --name <name>   how you appear to others (default: your OS username)
+  --port <port>   port (default: ${DEFAULT_PORT})
+  --yolo          solo mode only: skip permission prompts (dangerous)
+
+as a guest:
+  /leave          exit the session
+  // <text>       chat humans-only — the agent never sees it
+`;
+
+function arg(argv: string[], flag: string): string | undefined {
+  const i = argv.indexOf(flag);
+  return i >= 0 ? argv[i + 1] : undefined;
+}
+
+async function main(): Promise<void> {
+  const argv = process.argv.slice(2);
+  if (argv.includes('--help') || argv.includes('-h')) {
+    console.log(HELP);
+    return;
+  }
+
+  const name = arg(argv, '--name') ?? defaultName();
+  const port = Number(arg(argv, '--port') ?? DEFAULT_PORT);
+
+  switch (argv[0]) {
+    case 'join': {
+      const target = argv[1];
+      if (!target) {
+        console.error('usage: copair join <host:port#token>');
+        process.exit(1);
+      }
+      await runGuest({ target, name });
+      return;
+    }
+    case 'attach':
+      await runAttach({ name, port });
+      return;
+    case 'ctl': {
+      const cmd = argv[1];
+      if (cmd !== 'who' && cmd !== 'kick' && cmd !== 'stop') {
+        console.error('usage: copair ctl who|kick <name>|stop [--port <port>]');
+        process.exit(1);
+      }
+      await runCtl(cmd, cmd === 'kick' ? argv[2] : undefined, port);
+      return;
+    }
+    default: {
+      // No subcommand: attach if we're inside a claude session, else solo host.
+      if (!argv.includes('--solo') && process.env.CLAUDE_CODE_MESSAGING_SOCKET) {
+        await runAttach({ name, port });
+        return;
+      }
+      await runHost({
+        name,
+        port,
+        yolo: argv.includes('--yolo') || argv.includes('--dangerously-skip-permissions'),
+      });
+    }
+  }
+}
+
+main().catch((err) => {
+  console.error(err instanceof Error ? err.message : err);
+  process.exit(1);
+});
