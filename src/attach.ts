@@ -42,13 +42,8 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
   const token = genToken();
   const guestNames = new Set<string>();
 
-  // Guest messages are injected wrapped as a bash comment block — Claude Code
-  // syntax-highlights fenced code in the terminal, so the message renders in
-  // color (comments = green) instead of plain text.
-  const wrapGuestMsg = (name: string, text: string) =>
-    '```bash\n' + text.split('\n').map((l) => `# [${name}] ${l}`).join('\n') + '\n```';
   const isGuestEcho = (text: string) => {
-    const m = text.match(/^```bash\n# \[([^\]]+)\]/) ?? text.match(/^\[([^\]]+)\]/);
+    const m = text.match(/^\[([^\]]+)\]/);
     return m !== null && guestNames.has(m[1]);
   };
 
@@ -75,7 +70,7 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
         return;
       }
       room.broadcast({ kind: 'chat', from: name, text });
-      inject(socketPath, msgToken, wrapGuestMsg(name, text)).catch((err) => {
+      inject(socketPath, msgToken, `[${name}] ${text}`).catch((err) => {
         log(`✗ inject failed (${err.message}) — was the claude session restarted? Restart copair attach.`);
         room.broadcast({ kind: 'status', text: `could not deliver to host session: ${err.message}` });
       });
