@@ -1,6 +1,16 @@
+<div align="center">
+
 # copair
 
-> **Let others join your Claude Code session.**
+**Let others join your Claude Code session.**
+
+<img src="assets/banner.png" alt="copair — let others join your Claude Code session" width="100%">
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+</div>
+
+---
 
 Your session, but multiplayer. A teammate joins from their own terminal and sees everything you and Claude are doing — the history, the live output, all of it. They can talk to you, and they can talk to your Claude. It's still your session: your machine, your permissions, your transcript. You never leave `claude`.
 
