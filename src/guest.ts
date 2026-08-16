@@ -23,8 +23,9 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
     process.exit(1);
   }
 
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: '> ' });
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: '❯ ' });
   const ui = new UI(rl);
+  ui.selfName = opts.name;
   const ws = new WebSocket(parsed.url);
   const send = (msg: ClientMsg) => ws.send(JSON.stringify(msg));
 
@@ -40,17 +41,24 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
       return;
     }
     switch (msg.t) {
-      case 'welcome':
+      case 'welcome': {
         ui.hostName = msg.host;
-        ui.print(bold(`✓ joined ${msg.host}'s session as ${opts.name}`));
-        ui.print(dim(`in the room: ${msg.roster.join(', ')} — tools run on ${msg.host}'s machine`));
+        // Their name may have been deduped server-side (e.g. johan -> johan-2)
+        const self = msg.roster.find((n) => n === opts.name || n.startsWith(`${opts.name}-`)) ?? opts.name;
+        ui.selfName = self;
+        ui.print('');
+        ui.print(`  ${bold('copair')} ${dim('·')} ${bold(msg.host)}${dim("'s session")}`);
+        ui.print(dim(`  du är ${self} · i rummet: ${msg.roster.join(', ')} · tools kör hos ${msg.host}`));
+        ui.print(dim(`  skriv = till agenten · "// text" = bara människor · /leave = lämna`));
         if (msg.history.length > 0) {
-          ui.print(dim(`── replaying last ${msg.history.length} events ──`));
+          ui.print(dim(`  ── historik (${msg.history.length} händelser) ──`));
           for (const ev of msg.history) ui.event(ev);
-          ui.print(dim('── you are live ──'));
+          ui.print('');
+          ui.print(dim('  ── live ──'));
         }
         rl.prompt();
         break;
+      }
       case 'ev':
         ui.event(msg.ev);
         break;
@@ -87,6 +95,7 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
       ui.print(dim('/leave to exit — "// text" chats without the agent'));
       return;
     }
+    ui.eraseInput(); // the broadcast echo renders it under our own header instead
     send({ t: 'input', text });
     rl.prompt();
   });
