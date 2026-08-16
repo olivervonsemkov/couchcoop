@@ -59,6 +59,16 @@ copair ctl kick johan     # remove a guest
 copair ctl stop           # stop sharing, disconnect everyone
 ```
 
+## Presence in your statusline
+
+Joins/leaves are deliberately not announced inside the session (each announcement would trigger a noisy banner and an agent turn). Instead, `copair statusline` prints `👥 johan, sara` while guests are connected (and nothing otherwise) — append it to your Claude Code statusline script:
+
+```sh
+copair statusline
+```
+
+Ask Claude "who's in the room" (`copair ctl who`) for an on-demand check.
+
 ## How it works
 
 `copair attach` is a tiny sidecar next to your running `claude`:

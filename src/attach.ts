@@ -46,16 +46,16 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
   const log = (s: string) => console.log(s);
 
   const room: Room = new Room(opts.port, token, opts.name, {
+    // Presence is NOT injected into the session — each injection triggers a noisy
+    // banner + an agent turn. Guests see it via broadcast; the host via statusline/ctl who.
     onJoin: (name) => {
       guestNames.add(name);
       room.broadcast({ kind: 'status', text: `${name} joined` });
-      void inject(socketPath, msgToken, `[copair] ${name} joined the session as a guest.`).catch(() => {});
       writeState();
       log(`+ ${name} joined`);
     },
     onLeave: (name) => {
       room.broadcast({ kind: 'status', text: `${name} left` });
-      void inject(socketPath, msgToken, `[copair] ${name} left the session.`).catch(() => {});
       writeState();
       log(`- ${name} left`);
     },

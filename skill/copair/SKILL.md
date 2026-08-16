@@ -27,7 +27,9 @@ Also mention the teammate's second option: `copair fork <same target>` copies th
 
 ## While shared
 
-- Messages from guests arrive as user messages prefixed `[name] …`. Address people by their name. Lines prefixed `[copair]` are presence notes (someone joined/left) — acknowledge them at most with a few words, or not at all; never analyze reconnects or narrate presence unless the user asks.
+- Messages from guests arrive as user messages prefixed `[name] …`.
+- **When replying to a guest's message, start your reply with `**→ name:**` on its own line** (e.g. `**→ johan:**`) so the user can see at a glance that the answer is addressed to the guest, not to them. Replies to the user need no prefix.
+- Joins/leaves are NOT announced in the session. To see who's in the room, run `copair ctl who` — do it when the user asks, or before addressing someone by name if unsure.
 - If the user writes a line starting with `//`, it is human-to-human chat: do not respond to it at all.
 - Guests see the transcript live but approve nothing: permission prompts stay with the user here.
 

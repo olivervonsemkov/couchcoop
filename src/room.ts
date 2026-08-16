@@ -29,6 +29,14 @@ export class Room {
   ) {
     this.wss = new WebSocketServer({ port, host: '0.0.0.0' });
     this.wss.on('connection', (ws) => this.handleConnection(ws));
+    this.wss.on('error', (err: NodeJS.ErrnoException) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`port ${port} is already in use — is another copair running? Try --port ${port + 1}`);
+      } else {
+        console.error(`server error: ${err.message}`);
+      }
+      process.exit(1);
+    });
   }
 
   private handleConnection(ws: WebSocket): void {

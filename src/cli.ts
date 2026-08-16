@@ -4,6 +4,7 @@ import { runGuest } from './guest.js';
 import { runAttach } from './attach.js';
 import { runCtl } from './ctl.js';
 import { runFork } from './fork.js';
+import { runStatusline } from './statusline.js';
 import { DEFAULT_PORT } from './protocol.js';
 import { defaultName } from './util.js';
 
@@ -64,6 +65,9 @@ async function main(): Promise<void> {
     }
     case 'attach':
       await runAttach({ name, port });
+      return;
+    case 'statusline':
+      runStatusline();
       return;
     case 'ctl': {
       const cmd = argv[1];

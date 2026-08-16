@@ -90,4 +90,5 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
     rl.prompt();
   });
   rl.on('SIGINT', () => ws.close());
+  rl.on('close', () => ws.close()); // Ctrl+D / stdin ended
 }
