@@ -1,10 +1,10 @@
 # copair
 
-> Multiplayer for Claude Code. Invite a teammate into your live session — without leaving it.
+> **Let others join your Claude Code session.**
 
-Stuck? Want a second pair of eyes? Skip the PR-and-a-novel-of-context. Run `/copair-invite`, drop the command in Slack, and your teammate is *in your session* — full history, live agent output, a prompt of their own. Tools run on your machine, under your permissions. You never leave `claude`.
+Your session, but multiplayer. A teammate joins from their own terminal and sees everything you and Claude are doing — the history, the live output, all of it. They can talk to you, and they can talk to your Claude. It's still your session: your machine, your permissions, your transcript. You never leave `claude`.
 
-No accounts. No server. No cloud. Works over the same wifi or any shared VPN.
+No accounts. No server. No cloud. Same wifi or shared VPN is all it takes.
 
 ```
   you (in claude)                     teammate
@@ -20,6 +20,8 @@ No accounts. No server. No cloud. Works over the same wifi or any shared VPN.
 └───────────────────────────┘
 ```
 
+Why? Because "am I on the right track?" shouldn't cost a PR and a novel of context. Your session already *is* the context — so let them in.
+
 ## Install
 
 ```sh
@@ -31,30 +33,30 @@ Node 18+. Installs the `copair` command, the `/copair-*` slash commands, and sta
 
 ## Use
 
-**Host** — in your normal `claude` session:
+**You** — in your normal `claude` session:
 
 ```
 /copair-invite
 ```
 
-**Teammate** — same wifi or VPN:
+**They** — same wifi or VPN:
 
 ```sh
-copair join 192.168.1.24 --name johan   # live, in the host's session
-copair fork 192.168.1.24                # or: copy it into your own claude
+copair join 192.168.1.24 --name johan   # join you live
+copair fork 192.168.1.24                # or: take a copy into their own claude
 ```
 
 That's it.
 
 | | |
 |---|---|
-| `join` | shared room — talk to each other and to the host's agent, live |
-| `fork` | full session copied to your machine, opened in *your* claude (`--resume`) |
-| `// text` | humans-only chat, the agent never sees it |
-| `👥 johan` | presence — statusline for the host, prompt for guests |
-| `/copair-who` `-kick` `-stop` | manage the room |
+| `join` | they're in your session — everyone talks to each other and to your Claude |
+| `fork` | they take the whole session home and open it in *their* claude (`--resume`) |
+| `// text` | humans-only chat, Claude never sees it |
+| `👥 johan` | presence — statusline for you, prompt for them |
+| `/copair-who` `-kick` `-stop` | your room, your rules |
 
-Guests approve nothing: permission prompts stay with the host, always.
+Guests approve nothing: permission prompts stay with you, always.
 
 ## How it works
 
@@ -68,7 +70,7 @@ Your session stays a completely normal Claude Code session — same UI, same tra
 
 ## Security
 
-Sharing a session means sharing it: guests see the transcript (including file contents and command output that passed through) and can prompt an agent with tool access to your machine — your permission prompts are the boundary. The websocket is plain `ws://`. Use on networks you trust, or lock the room with `--token`.
+Letting someone join means letting them see: the transcript (including file contents and command output that passed through) and a direct line to an agent with tool access on your machine — your permission prompts are the boundary. The websocket is plain `ws://`. Use on networks you trust, or lock the room with `--token`.
 
 ## License
 
