@@ -45,7 +45,7 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
 
   const log = (s: string) => console.log(s);
 
-  const room = new Room(opts.port, token, opts.name, {
+  const room: Room = new Room(opts.port, token, opts.name, {
     onJoin: (name) => {
       guestNames.add(name);
       room.broadcast({ kind: 'status', text: `${name} joined` });

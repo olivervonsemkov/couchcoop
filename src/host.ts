@@ -49,7 +49,7 @@ export async function runHost(opts: HostOptions): Promise<void> {
     room.broadcast(ev);
     ui.event(ev);
   };
-  const room = new Room(opts.port, token, opts.name, {
+  const room: Room = new Room(opts.port, token, opts.name, {
     onJoin: (name) => emit({ kind: 'status', text: `${name} joined` }),
     onLeave: (name) => emit({ kind: 'status', text: `${name} left` }),
     onInput: (name, text) => handleHumanLine(name, text),
