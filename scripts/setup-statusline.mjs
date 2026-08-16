@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// Wire `copair statusline` into the user's Claude Code statusline.
-// - No statusline configured: point it at `copair statusline` (shows guests, else empty).
-// - Existing statusline: wrap it in a script that appends the copair segment.
-// Idempotent: skips if copair is already wired in.
+// Wire `couchcoop statusline` into the user's Claude Code statusline.
+// - No statusline configured: point it at `couchcoop statusline` (shows guests, else empty).
+// - Existing statusline: wrap it in a script that appends the couchcoop segment.
+// Idempotent: skips if couchcoop is already wired in.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
 const claudeDir = path.join(os.homedir(), '.claude');
 const settingsPath = path.join(claudeDir, 'settings.json');
-const wrapperPath = path.join(claudeDir, 'copair-statusline.sh');
+const wrapperPath = path.join(claudeDir, 'couchcoop-statusline.sh');
 
 let settings = {};
 try {
@@ -20,17 +20,17 @@ try {
 
 const current = settings.statusLine?.command ?? '';
 
-if (current.includes('copair')) {
-  console.log('  statusline: already wired to copair');
+if (current.includes('couchcoop')) {
+  console.log('  statusline: already wired to couchcoop');
   process.exit(0);
 }
 
-// If the current command is a script that already calls copair, skip too.
+// If the current command is a script that already calls couchcoop, skip too.
 const scriptRef = current.match(/(?:bash|sh)\s+(\S+)/)?.[1] ?? (current.startsWith('/') ? current.split(' ')[0] : null);
 if (scriptRef) {
   try {
-    if (fs.readFileSync(scriptRef, 'utf8').includes('copair statusline')) {
-      console.log('  statusline: already wired to copair');
+    if (fs.readFileSync(scriptRef, 'utf8').includes('couchcoop statusline')) {
+      console.log('  statusline: already wired to couchcoop');
       process.exit(0);
     }
   } catch {
@@ -41,17 +41,17 @@ if (scriptRef) {
 let wrapper;
 if (current) {
   wrapper = `#!/bin/sh
-# copair statusline wrapper — runs your original statusline, appends 👥 guests when sharing.
+# couchcoop statusline wrapper — runs your original statusline, appends 👥 guests when sharing.
 input=$(cat)
 out=$(printf '%s' "$input" | ${current})
-p=$(copair statusline 2>/dev/null)
+p=$(couchcoop statusline 2>/dev/null)
 if [ -n "$p" ]; then printf '%s \\033[1;32m%s\\033[0m\\n' "$out" "$p"; else printf '%s\\n' "$out"; fi
 `;
 } else {
   wrapper = `#!/bin/sh
-# copair statusline — shows 👥 connected guests while sharing a session, else nothing.
+# couchcoop statusline — shows 👥 connected guests while sharing a session, else nothing.
 cat > /dev/null
-copair statusline 2>/dev/null
+couchcoop statusline 2>/dev/null
 `;
 }
 

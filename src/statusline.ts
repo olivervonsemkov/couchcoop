@@ -4,14 +4,14 @@ import * as path from 'node:path';
 
 /**
  * Print a compact presence segment for the host's statusline, e.g. "👥 johan, sara".
- * Reads the state files copair attach daemons write; prints nothing when no
+ * Reads the state files couchcoop attach daemons write; prints nothing when no
  * guests are connected, so it can be appended unconditionally.
  */
 export function runStatusline(): void {
   const dir = os.tmpdir();
   let files: string[];
   try {
-    files = fs.readdirSync(dir).filter((f) => /^copair-\d+\.json$/.test(f));
+    files = fs.readdirSync(dir).filter((f) => /^couchcoop-\d+\.json$/.test(f));
   } catch {
     return;
   }

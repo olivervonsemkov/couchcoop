@@ -8,16 +8,16 @@ import { runStatusline } from './statusline.js';
 import { DEFAULT_PORT } from './protocol.js';
 import { defaultName } from './util.js';
 
-const HELP = `copair — invite a teammate into your live Claude Code session
+const HELP = `couchcoop — invite a teammate into your live Claude Code session
 
 usage:
-  copair attach                    share the claude session you're sitting in
+  couchcoop attach                    share the claude session you're sitting in
                                    (run via Claude Code's Bash — ask claude to run it)
-  copair join <host[:port][#token]>   join someone's session live from your terminal
-  copair fork <host[:port][#token]>   copy the session and open it in your own claude
+  couchcoop join <host[:port][#token]>   join someone's session live from your terminal
+  couchcoop fork <host[:port][#token]>   copy the session and open it in your own claude
                                       (full scrollable history; you talk to YOUR agent)
-  copair ctl who|kick <name>|stop  manage a running attach daemon
-  copair --solo                    standalone host mode (own agent loop, no claude UI)
+  couchcoop ctl who|kick <name>|stop  manage a running attach daemon
+  couchcoop --solo                    standalone host mode (own agent loop, no claude UI)
 
 options:
   --name <name>   how you appear to others (default: your OS username)
@@ -48,7 +48,7 @@ async function main(): Promise<void> {
     case 'join': {
       const target = argv[1];
       if (!target) {
-        console.error('usage: copair join <host:port#token>');
+        console.error('usage: couchcoop join <host:port#token>');
         process.exit(1);
       }
       await runGuest({ target, name });
@@ -57,7 +57,7 @@ async function main(): Promise<void> {
     case 'fork': {
       const target = argv[1];
       if (!target) {
-        console.error('usage: copair fork <host:port#token>');
+        console.error('usage: couchcoop fork <host:port#token>');
         process.exit(1);
       }
       await runFork({ target, launch: !argv.includes('--no-launch') });
@@ -72,7 +72,7 @@ async function main(): Promise<void> {
     case 'ctl': {
       const cmd = argv[1];
       if (cmd !== 'who' && cmd !== 'kick' && cmd !== 'stop') {
-        console.error('usage: copair ctl who|kick <name>|stop [--port <port>]');
+        console.error('usage: couchcoop ctl who|kick <name>|stop [--port <port>]');
         process.exit(1);
       }
       await runCtl(cmd, cmd === 'kick' ? argv[2] : undefined, port);

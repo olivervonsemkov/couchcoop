@@ -3,13 +3,13 @@ import { WebSocket } from 'ws';
 import { stateFile } from './attach.js';
 import type { ServerMsg } from './protocol.js';
 
-/** Send a control command to a local copair attach daemon. */
+/** Send a control command to a local couchcoop attach daemon. */
 export async function runCtl(cmd: 'kick' | 'who' | 'stop', arg: string | undefined, port: number): Promise<void> {
   let state: { token: string };
   try {
     state = JSON.parse(fs.readFileSync(stateFile(port), 'utf8'));
   } catch {
-    console.error(`no copair daemon found on port ${port} (state file missing)`);
+    console.error(`no couchcoop daemon found on port ${port} (state file missing)`);
     process.exit(1);
   }
 

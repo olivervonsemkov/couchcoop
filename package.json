@@ -1,10 +1,10 @@
 {
-  "name": "copair",
+  "name": "couchcoop",
   "version": "0.1.0",
   "description": "Invite a teammate into your live Claude agent session. Pair programming through agents — same wifi or VPN, zero infra.",
   "type": "module",
   "bin": {
-    "copair": "dist/cli.js"
+    "couchcoop": "dist/cli.js"
   },
   "files": [
     "dist",

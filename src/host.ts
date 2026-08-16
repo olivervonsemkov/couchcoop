@@ -12,7 +12,7 @@ export interface HostOptions {
 }
 
 const ROOM_NOTE = (host: string) =>
-  `This is a copair multiplayer session: several humans share this one conversation. ` +
+  `This is a couchcoop multiplayer session: several humans share this one conversation. ` +
   `Every human message is prefixed with the speaker's name in brackets, e.g. "[johan] looks good". ` +
   `Address people by name when it helps. The host is ${host}; all tools run on the host's machine. ` +
   `You may be told when people join or leave the room.`;
@@ -99,7 +99,7 @@ export async function runHost(opts: HostOptions): Promise<void> {
     if (pendingPerm) {
       const yes = /^y(es)?$/i.test(text);
       pendingPerm.resolve(
-        yes ? { behavior: 'allow' } : { behavior: 'deny', message: `${opts.name} denied this in copair` },
+        yes ? { behavior: 'allow' } : { behavior: 'deny', message: `${opts.name} denied this in couchcoop` },
       );
       return;
     }
@@ -131,7 +131,7 @@ export async function runHost(opts: HostOptions): Promise<void> {
     }
     ui.print('');
     ui.print(bold('invite (same wifi or VPN):'));
-    for (const ip of addrs) ui.print(green(`  copair join ${ip}:${opts.port}#${token}`));
+    for (const ip of addrs) ui.print(green(`  couchcoop join ${ip}:${opts.port}#${token}`));
     ui.print('');
   }
 
@@ -208,7 +208,7 @@ export async function runHost(opts: HostOptions): Promise<void> {
   }
 
   // ---- banner ----
-  ui.print(bold(`copair — hosting on port ${opts.port} as ${opts.name}`));
+  ui.print(bold(`couchcoop — hosting on port ${opts.port} as ${opts.name}`));
   printInvite();
   rl.prompt();
 

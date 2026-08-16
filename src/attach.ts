@@ -15,7 +15,7 @@ export interface AttachOptions {
 }
 
 export function stateFile(port: number): string {
-  return path.join(os.tmpdir(), `copair-${port}.json`);
+  return path.join(os.tmpdir(), `couchcoop-${port}.json`);
 }
 
 /**
@@ -29,8 +29,8 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
   const msgToken = process.env.CLAUDE_CODE_MESSAGING_TOKEN;
   if (!socketPath || !msgToken) {
     console.error(
-      'copair attach must run from inside a Claude Code session (CLAUDE_CODE_MESSAGING_SOCKET is not set).\n' +
-        'Ask Claude to run it via Bash, or use `copair --solo` to host standalone.',
+      'couchcoop attach must run from inside a Claude Code session (CLAUDE_CODE_MESSAGING_SOCKET is not set).\n' +
+        'Ask Claude to run it via Bash, or use `couchcoop --solo` to host standalone.',
     );
     process.exit(1);
   }
@@ -73,7 +73,7 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
       }
       room.broadcast({ kind: 'chat', from: name, text });
       inject(socketPath, msgToken, `[${name}]: ${text}`).catch((err) => {
-        log(`✗ inject failed (${err.message}) — was the claude session restarted? Restart copair attach.`);
+        log(`✗ inject failed (${err.message}) — was the claude session restarted? Restart couchcoop attach.`);
         room.broadcast({ kind: 'status', text: `could not deliver to host session: ${err.message}` });
       });
     },
@@ -135,14 +135,14 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
   const addrs = lanAddresses();
   const suffix = (ip: string) =>
     `${ip}${opts.port === 4747 ? '' : `:${opts.port}`}${token ? `#${token}` : ''}`;
-  log(`copair attached to session (transcript: ${path.basename(transcript)})`);
+  log(`couchcoop attached to session (transcript: ${path.basename(transcript)})`);
   log(`invite (same wifi or VPN):`);
-  for (const ip of addrs) log(`  copair join ${suffix(ip)} --name <their-name>`);
+  for (const ip of addrs) log(`  couchcoop join ${suffix(ip)} --name <their-name>`);
   if (!token) log(`open mode: anyone on the network can join — use --token to require a code`);
-  log(`manage: copair ctl who|kick <name>|stop --port ${opts.port}`);
+  log(`manage: couchcoop ctl who|kick <name>|stop --port ${opts.port}`);
 }
 
-/** Skip our own [copair] join/leave notes when they echo back through the transcript. */
+/** Skip our own [couchcoop] join/leave notes when they echo back through the transcript. */
 function isInternalNote(ev: Ev): boolean {
-  return ev.kind === 'chat' && (ev.from === 'copair' || ev.text.startsWith('[copair]'));
+  return ev.kind === 'chat' && (ev.from === 'couchcoop' || ev.text.startsWith('[couchcoop]'));
 }

@@ -47,7 +47,7 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
         const self = msg.roster.find((n) => n === opts.name || n.startsWith(`${opts.name}-`)) ?? opts.name;
         ui.selfName = self;
         ui.print('');
-        ui.print(`  ${bold('copair')} ${dim('·')} ${bold(msg.host)}${dim("'s session")}`);
+        ui.print(`  ${bold('couchcoop')} ${dim('·')} ${bold(msg.host)}${dim("'s session")}`);
         ui.print(dim(`  du är ${self} · i rummet: ${msg.roster.join(', ')} · tools kör hos ${msg.host}`));
         ui.print(dim(`  skriv = till agenten · "// text" = bara människor · /leave = lämna`));
         if (msg.history.length > 0) {

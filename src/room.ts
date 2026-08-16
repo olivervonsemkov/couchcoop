@@ -6,9 +6,9 @@ export interface RoomCallbacks {
   onInput(name: string, text: string): void;
   onJoin(name: string): void;
   onLeave(name: string): void;
-  /** Control commands from `copair ctl` (attach mode). Return text to show the caller. */
+  /** Control commands from `couchcoop ctl` (attach mode). Return text to show the caller. */
   onCtl?(cmd: 'kick' | 'who' | 'stop', arg: string | undefined): string;
-  /** Full transcript for `copair fork` requests (attach mode). */
+  /** Full transcript for `couchcoop fork` requests (attach mode). */
   onFork?(): string | null;
 }
 
@@ -31,7 +31,7 @@ export class Room {
     this.wss.on('connection', (ws) => this.handleConnection(ws));
     this.wss.on('error', (err: NodeJS.ErrnoException) => {
       if (err.code === 'EADDRINUSE') {
-        console.error(`port ${port} is already in use — is another copair running? Try --port ${port + 1}`);
+        console.error(`port ${port} is already in use — is another couchcoop running? Try --port ${port + 1}`);
       } else {
         console.error(`server error: ${err.message}`);
       }

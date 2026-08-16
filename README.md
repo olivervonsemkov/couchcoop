@@ -1,10 +1,10 @@
 <div align="center">
 
-# copair
+# couchcoop
 
-**Let others join your Claude Code session.**
+**Couch co-op for Claude Code — let others join your session.**
 
-<img src="assets/banner.png" alt="copair — let others join your Claude Code session" width="100%">
+<img src="assets/banner.png" alt="couchcoop — couch co-op for Claude Code" width="100%">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
@@ -17,17 +17,17 @@ Your session, but multiplayer. A teammate joins from their own terminal and sees
 No accounts. No server. No cloud. Same wifi or shared VPN is all it takes.
 
 ```
-  you (in claude)                     teammate
-┌───────────────────────────┐
-│ > /copair-invite          │
-│ → copair join 192.168.1.24│─── Slack ───┐
-│                           │             ▼
-│ 👥 johan                  │◄── ✓ joined your session
-│                           │
-│ [johan]: is auth green?   │  👥 oliver ❯ is auth green?
-│ claude: diff looks ok,    │  ✦ claude
-│   but retry is missing…   │    diff looks ok, but retry…
-└───────────────────────────┘
+  you (in claude)                        teammate
+┌──────────────────────────────┐
+│ > /couchcoop-invite          │
+│ → couchcoop join 192.168.1.24│─── Slack ───┐
+│                              │             ▼
+│ 👥 johan                     │◄── ✓ joined your session
+│                              │
+│ [johan]: is auth green?      │  👥 oliver ❯ is auth green?
+│ claude: diff looks ok,       │  ✦ claude
+│   but retry is missing…      │    diff looks ok, but retry…
+└──────────────────────────────┘
 ```
 
 Why? Because "am I on the right track?" shouldn't cost a PR and a novel of context. Your session already *is* the context — so let them in.
@@ -35,25 +35,25 @@ Why? Because "am I on the right track?" shouldn't cost a PR and a novel of conte
 ## Install
 
 ```sh
-git clone https://github.com/olivervonsemkov/copair
-cd copair && ./install.sh
+git clone https://github.com/olivervonsemkov/couchcoop
+cd couchcoop && ./install.sh
 ```
 
-Node 18+. Installs the `copair` command, the `/copair-*` slash commands, and statusline presence.
+Node 18+. Installs the `couchcoop` command, the `/couchcoop-*` slash commands, and statusline presence.
 
 ## Use
 
 **You** — in your normal `claude` session:
 
 ```
-/copair-invite
+/couchcoop-invite
 ```
 
 **They** — same wifi or VPN:
 
 ```sh
-copair join 192.168.1.24 --name johan   # join you live
-copair fork 192.168.1.24                # or: take a copy into their own claude
+couchcoop join 192.168.1.24 --name johan   # join you live
+couchcoop fork 192.168.1.24                # or: take a copy into their own claude
 ```
 
 That's it.
@@ -64,7 +64,7 @@ That's it.
 | `fork` | they take the whole session home and open it in *their* claude (`--resume`) |
 | `// text` | humans-only chat, Claude never sees it |
 | `👥 johan` | presence — statusline for you, prompt for them |
-| `/copair-who` `-kick` `-stop` | your room, your rules |
+| `/couchcoop-who` `-kick` `-stop` | your room, your rules |
 
 Guests approve nothing: permission prompts stay with you, always.
 
@@ -74,9 +74,9 @@ A tiny sidecar next to your running `claude`:
 
 - **out** — tails your session transcript, streams it to guests over its own websocket
 - **in** — delivers guest messages through Claude Code's local messaging socket, prefixed `[name]:`
-- **open by default** — anyone who can reach the port can join; `copair attach --token` requires an invite code
+- **open by default** — anyone who can reach the port can join; `couchcoop attach --token` requires an invite code
 
-Your session stays a completely normal Claude Code session — same UI, same transcript, resumable as always. There's also `copair --solo` (standalone shared session via the Agent SDK) if you can't run the sidecar.
+Your session stays a completely normal Claude Code session — same UI, same transcript, resumable as always. There's also `couchcoop --solo` (standalone shared session via the Agent SDK) if you can't run the sidecar.
 
 ## Security
 

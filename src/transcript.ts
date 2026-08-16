@@ -63,7 +63,7 @@ export function lineToEvents(json: any, hostName: string, isGuestEcho: (text: st
       let t = text.trim();
       if (!t || t.startsWith('<')) continue; // command output / system-reminder wrappers
       if (isGuestEcho(t)) continue; // a guest message we injected, already broadcast
-      // Unwrap legacy bash-fenced guest messages (older copair versions injected these)
+      // Unwrap legacy bash-fenced guest messages (older couchcoop versions injected these)
       const fence = t.match(/^```bash\n([\s\S]*?)\n?```$/);
       if (fence) t = fence[1].split('\n').map((l) => l.replace(/^# /, '')).join('\n').trim();
       // Attribute "[name] text" / "[name]: text" to the sender instead of the host
