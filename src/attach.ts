@@ -66,9 +66,10 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
         return;
       }
       room.broadcast({ kind: 'chat', from: name, text });
-      inject(socketPath, msgToken, `[${name}] ${text}`).catch((err) =>
-        room.broadcast({ kind: 'status', text: `could not deliver to host session: ${err.message}` }),
-      );
+      inject(socketPath, msgToken, `[${name}] ${text}`).catch((err) => {
+        log(`✗ inject failed (${err.message}) — was the claude session restarted? Restart copair attach.`);
+        room.broadcast({ kind: 'status', text: `could not deliver to host session: ${err.message}` });
+      });
     },
     onCtl: (cmd, arg) => {
       if (cmd === 'who') return `in the room: ${room.roster().join(', ')}`;
