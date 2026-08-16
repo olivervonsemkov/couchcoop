@@ -9,16 +9,18 @@ export type Ev =
   | { kind: 'status'; text: string }; // presence, approvals, system notes
 
 export type ClientMsg =
-  | { t: 'hello'; token: string; name: string; role?: 'guest' | 'ctl' }
+  | { t: 'hello'; token: string; name: string; role?: 'guest' | 'ctl' | 'fork' }
   | { t: 'input'; text: string }
-  | { t: 'ctl'; cmd: 'kick' | 'who' | 'stop'; arg?: string };
+  | { t: 'ctl'; cmd: 'kick' | 'who' | 'stop'; arg?: string }
+  | { t: 'fork' };
 
 export type ServerMsg =
   | { t: 'welcome'; history: Ev[]; roster: string[]; host: string }
   | { t: 'ev'; ev: Ev }
   | { t: 'denied'; reason: string }
   | { t: 'kicked' }
-  | { t: 'ctlres'; text: string };
+  | { t: 'ctlres'; text: string }
+  | { t: 'transcript'; jsonl: string; host: string };
 
 export const DEFAULT_PORT = 4747;
 export const HISTORY_LIMIT = 5000;

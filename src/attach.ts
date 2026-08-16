@@ -85,6 +85,14 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
       }
       return 'unknown command';
     },
+    onFork: () => {
+      try {
+        log(`↥ transcript forked by a guest`);
+        return fs.readFileSync(transcript, 'utf8');
+      } catch {
+        return null;
+      }
+    },
   });
 
   // Seed history from the existing transcript so late joiners get context,
@@ -120,8 +128,8 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
   const addrs = lanAddresses();
   log(`copair attached to session (transcript: ${path.basename(transcript)})`);
   log(`invite (same wifi or VPN):`);
-  for (const ip of addrs) log(`  npx copair join ${ip}:${opts.port}#${token}`);
-  log(`manage: npx copair ctl who|kick <name>|stop --port ${opts.port}`);
+  for (const ip of addrs) log(`  copair join ${ip}:${opts.port}#${token}`);
+  log(`manage: copair ctl who|kick <name>|stop --port ${opts.port}`);
 }
 
 /** Skip our own [copair] join/leave notes when they echo back through the transcript. */

@@ -130,7 +130,7 @@ export async function runHost(opts: HostOptions): Promise<void> {
     }
     ui.print('');
     ui.print(bold('invite (same wifi or VPN):'));
-    for (const ip of addrs) ui.print(green(`  npx copair join ${ip}:${opts.port}#${token}`));
+    for (const ip of addrs) ui.print(green(`  copair join ${ip}:${opts.port}#${token}`));
     ui.print('');
   }
 

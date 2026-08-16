@@ -3,6 +3,7 @@ import { runHost } from './host.js';
 import { runGuest } from './guest.js';
 import { runAttach } from './attach.js';
 import { runCtl } from './ctl.js';
+import { runFork } from './fork.js';
 import { DEFAULT_PORT } from './protocol.js';
 import { defaultName } from './util.js';
 
@@ -11,7 +12,9 @@ const HELP = `copair — invite a teammate into your live Claude Code session
 usage:
   copair attach                    share the claude session you're sitting in
                                    (run via Claude Code's Bash — ask claude to run it)
-  copair join <host:port#token>    join someone's session from your terminal
+  copair join <host:port#token>    join someone's session live from your terminal
+  copair fork <host:port#token>    copy the session and open it in your own claude
+                                   (full scrollable history; you talk to YOUR agent)
   copair ctl who|kick <name>|stop  manage a running attach daemon
   copair --solo                    standalone host mode (own agent loop, no claude UI)
 
@@ -48,6 +51,15 @@ async function main(): Promise<void> {
         process.exit(1);
       }
       await runGuest({ target, name });
+      return;
+    }
+    case 'fork': {
+      const target = argv[1];
+      if (!target) {
+        console.error('usage: copair fork <host:port#token>');
+        process.exit(1);
+      }
+      await runFork({ target, launch: !argv.includes('--no-launch') });
       return;
     }
     case 'attach':

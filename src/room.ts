@@ -8,6 +8,8 @@ export interface RoomCallbacks {
   onLeave(name: string): void;
   /** Control commands from `copair ctl` (attach mode). Return text to show the caller. */
   onCtl?(cmd: 'kick' | 'who' | 'stop', arg: string | undefined): string;
+  /** Full transcript for `copair fork` requests (attach mode). */
+  onFork?(): string | null;
 }
 
 /**
@@ -32,6 +34,7 @@ export class Room {
   private handleConnection(ws: WebSocket): void {
     let name: string | null = null;
     let isCtl = false;
+    let authed = false;
     const timeout = setTimeout(() => ws.close(), 10_000); // hello must arrive quickly
 
     ws.on('message', (raw) => {
@@ -49,8 +52,9 @@ export class Room {
           ws.close();
           return;
         }
-        if (msg.role === 'ctl') {
-          isCtl = true;
+        authed = true;
+        if (msg.role === 'ctl' || msg.role === 'fork') {
+          isCtl = msg.role === 'ctl';
           return;
         }
         name = this.uniqueName(String(msg.name || 'guest').slice(0, 32));
@@ -73,6 +77,13 @@ export class Room {
 
       if (msg.t === 'ctl' && isCtl && this.cb.onCtl) {
         this.send(ws, { t: 'ctlres', text: this.cb.onCtl(msg.cmd, msg.arg) });
+        return;
+      }
+
+      if (msg.t === 'fork' && authed && this.cb.onFork) {
+        const jsonl = this.cb.onFork();
+        if (jsonl === null) this.send(ws, { t: 'denied', reason: 'fork not available in this mode' });
+        else this.send(ws, { t: 'transcript', jsonl, host: this.hostName });
       }
     });
 
