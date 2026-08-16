@@ -26,10 +26,10 @@ you — in claude, as usual
 │                                   │   ┌─────────────────▼─────────────────┐
 │                                   │   │ $ couchcoop join 192.168.1.24     │
 │                                   │   │ ✓ joined — full history replayed  │
-│ [johan]: is auth green?           │◀──│ 👥 oliver ❯ is auth green?        │
+│ [sam]: is auth green?             │◀──│ 👥 alex ❯ is auth green?          │
 │ ✦ diff looks ok, but retry        │──▶│ ✦ claude                          │
 │   is missing on line 84…          │   │   diff looks ok, but retry…       │
-│ 👥 johan                ctx:87%   │   │ 👥 oliver ❯ _                     │
+│ 👥 sam                  ctx:87%   │   │ 👥 alex ❯ _                       │
 └───────────────────────────────────┘   └───────────────────────────────────┘
        tools run only here                    sees everything, live
 ```
@@ -56,7 +56,7 @@ Node 18+. Installs the `couchcoop` command, the `/couchcoop-*` slash commands, a
 **They** — same wifi or VPN:
 
 ```sh
-couchcoop join 192.168.1.24 --name johan   # join you live
+couchcoop join 192.168.1.24 --name sam   # join you live
 couchcoop fork 192.168.1.24                # or: take a copy into their own claude
 ```
 
@@ -67,7 +67,7 @@ That's it.
 | `join` | they're in your session — everyone talks to each other and to your Claude |
 | `fork` | they take the whole session home and open it in *their* claude (`--resume`) |
 | `// text` | humans-only chat, Claude never sees it |
-| `👥 johan` | presence — statusline for you, prompt for them |
+| `👥 sam` | presence — statusline for you, prompt for them |
 | `/couchcoop-who` `-kick` `-stop` | your room, your rules |
 
 Guests approve nothing: permission prompts stay with you, always.
@@ -77,14 +77,14 @@ Guests approve nothing: permission prompts stay with you, always.
 When you run `/couchcoop-invite`, a small background process (`couchcoop attach`) starts next to your `claude` and acts as the bridge:
 
 - **outgoing** — Claude Code already writes everything in your session to a transcript file on disk; couchcoop follows that file and streams every new line to your guests over a websocket it serves itself (port `4747`)
-- **incoming** — every running `claude` listens on a local messaging socket; couchcoop delivers guest messages through it, so they show up in your session as `[johan]: …` and Claude answers them like any other message
-- **access** — open by default: anyone who can reach the port can join. `couchcoop attach --token` locks the room behind an invite code instead
+- **incoming** — every running `claude` listens on a local messaging socket; couchcoop delivers guest messages through it, so they show up in your session as `[sam]: …` and Claude answers them like any other message
+- **access** — open by default: anyone who can reach the port can join. lock the room with `/couchcoop-invite <password>` — guests must then join with `--pass <password>` (`--token` generates a random code instead)
 
 Your session stays a completely normal Claude Code session — same UI, same transcript, resumable as always. There's also `couchcoop --solo` (standalone shared session via the Agent SDK) if you can't run the sidecar.
 
 ## Security
 
-Letting someone join means letting them see: the transcript (including file contents and command output that passed through) and a direct line to an agent with tool access on your machine — your permission prompts are the boundary. The websocket is plain `ws://`. Use on networks you trust, or lock the room with `--token`.
+Letting someone join means letting them see: the transcript (including file contents and command output that passed through) and a direct line to an agent with tool access on your machine — your permission prompts are the boundary. The websocket is plain `ws://`. Use on networks you trust, or lock the room with a password: `/couchcoop-invite <password>`.
 
 ## License
 

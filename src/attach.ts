@@ -12,6 +12,8 @@ export interface AttachOptions {
   port: number;
   /** Require an invite token. Default is open mode: anyone on the network can join. */
   withToken?: boolean;
+  /** User-chosen password guests must supply with --pass. Overrides --token. */
+  pass?: string;
 }
 
 export function stateFile(port: number): string {
@@ -41,7 +43,7 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
     process.exit(1);
   }
 
-  const token = opts.withToken ? genToken() : '';
+  const token = opts.pass ?? (opts.withToken ? genToken() : '');
   const guestNames = new Set<string>();
 
   const isGuestEcho = (text: string) => {
@@ -134,11 +136,12 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
   writeState();
   const addrs = lanAddresses();
   const suffix = (ip: string) =>
-    `${ip}${opts.port === 4747 ? '' : `:${opts.port}`}${token ? `#${token}` : ''}`;
+    `${ip}${opts.port === 4747 ? '' : `:${opts.port}`}${!opts.pass && token ? `#${token}` : ''}`;
+  const passFlag = opts.pass ? ` --pass ${opts.pass}` : '';
   log(`couchcoop attached to session (transcript: ${path.basename(transcript)})`);
   log(`invite (same wifi or VPN):`);
-  for (const ip of addrs) log(`  couchcoop join ${suffix(ip)} --name <their-name>`);
-  if (!token) log(`open mode: anyone on the network can join — use --token to require a code`);
+  for (const ip of addrs) log(`  couchcoop join ${suffix(ip)}${passFlag} --name <their-name>`);
+  if (!token) log(`open mode: anyone on the network can join — use --pass <word> or --token to lock the room`);
   log(`manage: couchcoop ctl who|kick <name>|stop --port ${opts.port}`);
 }
 

@@ -21,6 +21,7 @@ usage:
 
 options:
   --name <name>   how you appear to others (default: your OS username)
+  --pass <word>   lock the room with a password (host) / supply it (guest)
   --port <port>   port (default: ${DEFAULT_PORT})
   --yolo          solo mode only: skip permission prompts (dangerous)
 
@@ -43,6 +44,7 @@ async function main(): Promise<void> {
 
   const name = arg(argv, '--name') ?? defaultName();
   const port = Number(arg(argv, '--port') ?? DEFAULT_PORT);
+  const pass = arg(argv, '--pass');
 
   switch (argv[0]) {
     case 'join': {
@@ -51,7 +53,7 @@ async function main(): Promise<void> {
         console.error('usage: couchcoop join <host:port#token>');
         process.exit(1);
       }
-      await runGuest({ target, name });
+      await runGuest({ target, name, pass });
       return;
     }
     case 'fork': {
@@ -60,11 +62,11 @@ async function main(): Promise<void> {
         console.error('usage: couchcoop fork <host:port#token>');
         process.exit(1);
       }
-      await runFork({ target, launch: !argv.includes('--no-launch') });
+      await runFork({ target, launch: !argv.includes('--no-launch'), pass });
       return;
     }
     case 'attach':
-      await runAttach({ name, port, withToken: argv.includes('--token') });
+      await runAttach({ name, port, withToken: argv.includes('--token'), pass });
       return;
     case 'statusline':
       runStatusline();
@@ -81,7 +83,7 @@ async function main(): Promise<void> {
     default: {
       // No subcommand: attach if we're inside a claude session, else solo host.
       if (!argv.includes('--solo') && process.env.CLAUDE_CODE_MESSAGING_SOCKET) {
-        await runAttach({ name, port });
+        await runAttach({ name, port, withToken: argv.includes('--token'), pass });
         return;
       }
       await runHost({

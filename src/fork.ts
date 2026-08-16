@@ -12,6 +12,8 @@ import { bold, dim, green, red } from './util.js';
 export interface ForkOptions {
   target: string;
   launch: boolean; // false = just write the session file and print the resume command
+  /** Room password (--pass). Takes precedence over a #token in the target. */
+  pass?: string;
 }
 
 /**
@@ -29,7 +31,7 @@ export async function runFork(opts: ForkOptions): Promise<void> {
 
   const ws = new WebSocket(parsed.url, { maxPayload: 512 * 1024 * 1024 });
   ws.on('open', () => {
-    ws.send(JSON.stringify({ t: 'hello', token: parsed.token, name: 'fork', role: 'fork' }));
+    ws.send(JSON.stringify({ t: 'hello', token: opts.pass ?? parsed.token, name: 'fork', role: 'fork' }));
     ws.send(JSON.stringify({ t: 'fork' }));
   });
   ws.on('error', (err) => {

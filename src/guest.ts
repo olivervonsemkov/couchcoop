@@ -5,8 +5,10 @@ import { UI } from './ui.js';
 import { bold, dim, green, red } from './util.js';
 
 export interface GuestOptions {
-  target: string; // host:port#token, with optional ws:// prefix
+  target: string; // host[:port][#token], with optional ws:// prefix
   name: string;
+  /** Room password (--pass). Takes precedence over a #token in the target. */
+  pass?: string;
 }
 
 export function parseTarget(target: string): { url: string; token: string } | null {
@@ -30,7 +32,7 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
   const send = (msg: ClientMsg) => ws.send(JSON.stringify(msg));
 
   ws.on('open', () => {
-    send({ t: 'hello', token: parsed.token, name: opts.name });
+    send({ t: 'hello', token: opts.pass ?? parsed.token, name: opts.name });
   });
 
   ws.on('message', (raw) => {
