@@ -20,7 +20,8 @@ export type ServerMsg =
   | { t: 'denied'; reason: string }
   | { t: 'kicked' }
   | { t: 'ctlres'; text: string }
-  | { t: 'transcript'; jsonl: string; host: string };
+  | { t: 'transcript'; jsonl: string; host: string }
+  | { t: 'roster'; roster: string[] };
 
 export const DEFAULT_PORT = 4747;
 export const HISTORY_LIMIT = 5000;

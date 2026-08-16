@@ -75,6 +75,7 @@ export class Room {
           host: this.hostName,
         });
         this.cb.onJoin(name);
+        this.broadcastRoster();
         return;
       }
 
@@ -98,7 +99,10 @@ export class Room {
 
     ws.on('close', () => {
       clearTimeout(timeout);
-      if (name && this.guests.delete(ws)) this.cb.onLeave(name);
+      if (name && this.guests.delete(ws)) {
+        this.cb.onLeave(name);
+        this.broadcastRoster();
+      }
     });
     ws.on('error', () => ws.close());
   }
@@ -124,6 +128,10 @@ export class Room {
 
   roster(): string[] {
     return [this.hostName, ...this.guests.values()];
+  }
+
+  private broadcastRoster(): void {
+    for (const ws of this.guests.keys()) this.send(ws, { t: 'roster', roster: this.roster() });
   }
 
   kick(name: string): boolean {

@@ -2,7 +2,7 @@ import * as readline from 'node:readline';
 import { WebSocket } from 'ws';
 import type { ClientMsg, ServerMsg } from './protocol.js';
 import { UI } from './ui.js';
-import { bold, dim, red } from './util.js';
+import { bold, dim, green, red } from './util.js';
 
 export interface GuestOptions {
   target: string; // host:port#token, with optional ws:// prefix
@@ -62,6 +62,13 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
       case 'ev':
         ui.event(msg.ev);
         break;
+      case 'roster': {
+        // Live presence in the prompt: 👥 everyone else in the room
+        const others = msg.roster.filter((n) => n !== ui.selfName);
+        rl.setPrompt(`${green(`👥 ${others.join(', ')}`)} ${dim('❯')} `);
+        rl.prompt(true);
+        break;
+      }
       case 'denied':
         ui.print(red(`join denied: ${msg.reason}`));
         process.exit(1);
