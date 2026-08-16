@@ -53,6 +53,8 @@ Node 18+. Installs the `couchcoop` command, the `/couchcoop-*` slash commands, a
 /couchcoop-invite
 ```
 
+…or `/couchcoop-invite <password>` if you want the room locked — guests then join with `--pass <password>`.
+
 **They** — same wifi or VPN:
 
 ```sh
