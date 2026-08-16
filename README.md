@@ -4,7 +4,7 @@
 
 **Couch co-op for Claude Code — let others join your session.**
 
-<img src="assets/banner.png" alt="couchcoop — couch co-op for Claude Code" width="100%">
+<img src="assets/banner.jpg" alt="couchcoop — couch co-op for Claude Code" width="100%">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
