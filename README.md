@@ -17,17 +17,21 @@ Your session, but multiplayer. A teammate joins from their own terminal and sees
 No accounts. No server. No cloud. Same wifi or shared VPN is all it takes.
 
 ```
-  you (in claude)                        teammate
-┌──────────────────────────────┐
-│ > /couchcoop-invite          │
-│ → couchcoop join 192.168.1.24│─── Slack ───┐
-│                              │             ▼
-│ 👥 johan                     │◄── ✓ joined your session
-│                              │
-│ [johan]: is auth green?      │  👥 oliver ❯ is auth green?
-│ claude: diff looks ok,       │  ✦ claude
-│   but retry is missing…      │    diff looks ok, but retry…
-└──────────────────────────────┘
+you — in claude, as usual
+┌───────────────────────────────────┐
+│ > /couchcoop-invite               │
+│ ⎿ couchcoop join 192.168.1.24     │──── slack ───┐
+│                                   │              │
+│                                   │   teammate — any terminal
+│                                   │   ┌─────────▼─────────────────────────┐
+│                                   │   │ $ couchcoop join 192.168.1.24     │
+│                                   │   │ ✓ joined — full history replayed  │
+│ [johan]: is auth green?           │◀──│ 👥 oliver ❯ is auth green?        │
+│ ✦ diff looks ok, but retry        │──▶│ ✦ claude                          │
+│   is missing on line 84…          │   │   diff looks ok, but retry…       │
+│ 👥 johan                ctx:87%   │   │ 👥 oliver ❯ _                     │
+└───────────────────────────────────┘   └───────────────────────────────────┘
+       tools run only here                    sees everything, live
 ```
 
 Why? Because "am I on the right track?" shouldn't cost a PR and a novel of context. Your session already *is* the context — so let them in.
@@ -70,11 +74,11 @@ Guests approve nothing: permission prompts stay with you, always.
 
 ## How it works
 
-A tiny sidecar next to your running `claude`:
+When you run `/couchcoop-invite`, a small background process (`couchcoop attach`) starts next to your `claude` and acts as the bridge:
 
-- **out** — tails your session transcript, streams it to guests over its own websocket
-- **in** — delivers guest messages through Claude Code's local messaging socket, prefixed `[name]:`
-- **open by default** — anyone who can reach the port can join; `couchcoop attach --token` requires an invite code
+- **outgoing** — Claude Code already writes everything in your session to a transcript file on disk; couchcoop follows that file and streams every new line to your guests over a websocket it serves itself (port `4747`)
+- **incoming** — every running `claude` listens on a local messaging socket; couchcoop delivers guest messages through it, so they show up in your session as `[johan]: …` and Claude answers them like any other message
+- **access** — open by default: anyone who can reach the port can join. `couchcoop attach --token` locks the room behind an invite code instead
 
 Your session stays a completely normal Claude Code session — same UI, same transcript, resumable as always. There's also `couchcoop --solo` (standalone shared session via the Agent SDK) if you can't run the sidecar.
 
