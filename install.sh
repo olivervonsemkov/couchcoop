@@ -10,6 +10,7 @@ npm link
 mkdir -p "$HOME/.claude/skills/copair" "$HOME/.claude/commands"
 cp skill/copair/SKILL.md "$HOME/.claude/skills/copair/SKILL.md"
 cp commands/*.md "$HOME/.claude/commands/"
+node scripts/setup-statusline.mjs
 
 echo ""
 echo "✓ copair installed"
