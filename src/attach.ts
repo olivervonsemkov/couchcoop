@@ -144,5 +144,5 @@ export async function runAttach(opts: AttachOptions): Promise<void> {
 
 /** Skip our own [copair] join/leave notes when they echo back through the transcript. */
 function isInternalNote(ev: Ev): boolean {
-  return ev.kind === 'chat' && ev.text.startsWith('[copair]');
+  return ev.kind === 'chat' && (ev.from === 'copair' || ev.text.startsWith('[copair]'));
 }
