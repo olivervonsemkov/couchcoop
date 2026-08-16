@@ -20,10 +20,10 @@ No accounts. No server. No cloud. Same wifi or shared VPN is all it takes.
 you — in claude, as usual
 ┌───────────────────────────────────┐
 │ > /couchcoop-invite               │
-│ ⎿ couchcoop join 192.168.1.24     │──── slack ───┐
-│                                   │              │
+│ ⎿ couchcoop join 192.168.1.24     │── send the address ──┐
+│                                   │                      │
 │                                   │   teammate — any terminal
-│                                   │   ┌─────────▼─────────────────────────┐
+│                                   │   ┌─────────────────▼─────────────────┐
 │                                   │   │ $ couchcoop join 192.168.1.24     │
 │                                   │   │ ✓ joined — full history replayed  │
 │ [johan]: is auth green?           │◀──│ 👥 oliver ❯ is auth green?        │
