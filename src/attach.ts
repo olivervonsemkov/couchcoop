@@ -28,8 +28,10 @@ export function stateFile(port: number): string {
  */
 export async function runAttach(opts: AttachOptions): Promise<void> {
   const socketPath = process.env.CLAUDE_CODE_MESSAGING_SOCKET;
+  // Absent before Claude Code 2.1.228 — the socket is auth'd by fs permissions
+  // and process evidence there; the auth frame is only a fallback when set.
   const msgToken = process.env.CLAUDE_CODE_MESSAGING_TOKEN;
-  if (!socketPath || !msgToken) {
+  if (!socketPath) {
     console.error(
       'couchcoop attach must run from inside a Claude Code session (CLAUDE_CODE_MESSAGING_SOCKET is not set).\n' +
         'Ask Claude to run it via Bash, or use `couchcoop --solo` to host standalone.',
