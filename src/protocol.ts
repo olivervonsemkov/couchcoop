@@ -15,7 +15,7 @@ export type ClientMsg =
   | { t: 'fork' };
 
 export type ServerMsg =
-  | { t: 'welcome'; history: Ev[]; roster: string[]; host: string }
+  | { t: 'welcome'; history: Ev[]; roster: string[]; host: string; project?: string }
   | { t: 'ev'; ev: Ev }
   | { t: 'denied'; reason: string }
   | { t: 'kicked' }

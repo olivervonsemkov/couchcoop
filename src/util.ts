@@ -1,5 +1,14 @@
 import { randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import { networkInterfaces, userInfo } from 'node:os';
+
+export const VERSION: string = (() => {
+  try {
+    return JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')).version ?? '';
+  } catch {
+    return '';
+  }
+})();
 
 export function genToken(): string {
   return randomBytes(4).toString('base64url');
@@ -37,6 +46,17 @@ export const yellow = wrap('33');
 export const red = wrap('31');
 export const cyan = wrap('36');
 export const magenta = wrap('35');
+
+// --- the couchcoop palette (256-color, warm living-room tones) ---
+export const clay = wrap('38;5;173'); // the host
+export const sage = wrap('38;5;108'); // you
+export const cream = wrap('38;5;223'); // the agent
+export const tan = wrap('38;5;180'); // values, key hints
+export const amber = wrap('38;5;179'); // warnings, pending approvals
+export const rust = wrap('38;5;167'); // errors, denials
+export const slate = wrap('38;5;109'); // tool names
+export const muted = wrap('38;5;245'); // secondary text
+export const rail = wrap('38;5;240'); // borders, glyphs, rules
 
 const NAME_COLORS = ['35', '33', '36', '32', '34', '95', '93', '96'];
 

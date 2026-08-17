@@ -26,6 +26,7 @@ export class Room {
     private token: string,
     private hostName: string,
     private cb: RoomCallbacks,
+    private project?: string,
   ) {
     this.wss = new WebSocketServer({ port, host: '0.0.0.0' });
     this.wss.on('connection', (ws) => this.handleConnection(ws));
@@ -73,6 +74,7 @@ export class Room {
           history: this.history.slice(-500),
           roster: this.roster(),
           host: this.hostName,
+          project: this.project,
         });
         this.cb.onJoin(name);
         this.broadcastRoster();
