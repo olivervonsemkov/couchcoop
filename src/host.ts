@@ -1,9 +1,24 @@
+import * as path from 'node:path';
 import * as readline from 'node:readline';
 import { query, type SDKMessage, type SDKUserMessage, type PermissionResult } from '@anthropic-ai/claude-agent-sdk';
+import { center, frame, innerWidth, kv, logoRows, termWidth, tips, twoCol, width } from './box.js';
 import { Room } from './room.js';
-import { UI } from './ui.js';
+import { formatRoster, UI } from './ui.js';
 import type { Ev } from './protocol.js';
-import { bold, dim, genToken, green, lanAddresses, red, summarizeInput, yellow } from './util.js';
+import {
+  amber,
+  bold,
+  clay,
+  cream,
+  genToken,
+  lanAddresses,
+  muted,
+  rust,
+  sage,
+  summarizeInput,
+  tan,
+  VERSION,
+} from './util.js';
 
 export interface HostOptions {
   name: string;
@@ -17,9 +32,17 @@ const ROOM_NOTE = (host: string) =>
   `Address people by name when it helps. The host is ${host}; all tools run on the host's machine. ` +
   `You may be told when people join or leave the room.`;
 
+const HINTS: [string, string][] = [
+  ['/invite', 'address'],
+  ['/who', 'room'],
+  ['/kick', '<name>'],
+  ['//', 'humans only'],
+  ['/quit', 'exit'],
+];
+
 export async function runHost(opts: HostOptions): Promise<void> {
   const token = genToken();
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: '> ' });
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: `${clay('❯')} ` });
   const ui = new UI(rl);
   ui.hostName = opts.name;
 
@@ -54,7 +77,7 @@ export async function runHost(opts: HostOptions): Promise<void> {
     onJoin: (name) => emit({ kind: 'status', text: `${name} joined` }),
     onLeave: (name) => emit({ kind: 'status', text: `${name} left` }),
     onInput: (name, text) => handleHumanLine(name, text),
-  });
+  }, path.basename(process.cwd()));
 
   // ---- permission prompts (answered by the host only) ----
   let pendingPerm: { resolve: (r: PermissionResult) => void } | null = null;
@@ -66,8 +89,9 @@ export async function runHost(opts: HostOptions): Promise<void> {
   ): Promise<PermissionResult> => {
     const what = info.title ?? `${toolName} ${summarizeInput(input)}`;
     room.broadcast({ kind: 'status', text: `⏳ ${what} — waiting for ${opts.name} to approve` });
-    ui.print(yellow(`⏳ ${what}`));
-    ui.print(yellow(`   allow? [y/n]`));
+    ui.print('');
+    ui.print(`  ${amber('⏳')} ${cream(what)}`);
+    ui.print(`     ${muted('allow?')} ${tan('y')}${muted(' / ')}${tan('n')}`);
     return new Promise<PermissionResult>((resolve) => {
       pendingPerm = {
         resolve: (r) => {
@@ -107,32 +131,66 @@ export async function runHost(opts: HostOptions): Promise<void> {
       rl.prompt();
       return;
     }
-    if (text === '/invite') return printInvite();
-    if (text === '/who') return ui.print(dim(`in the room: ${room.roster().join(', ')}`));
+    if (text === '/invite') {
+      ui.print('');
+      for (const line of inviteRows()) ui.print(`  ${line}`);
+      ui.print('');
+      return;
+    }
+    if (text === '/who') {
+      ui.print(`  ${muted('in the room ·')} ${formatRoster(room.roster(), opts.name, opts.name)}`);
+      return;
+    }
     if (text.startsWith('/kick ')) {
       const who = text.slice(6).trim();
       if (room.kick(who)) emit({ kind: 'status', text: `${who} was kicked by ${opts.name}` });
-      else ui.print(red(`no guest named "${who}"`));
+      else ui.print(`  ${rust('✗')} ${muted(`no guest named "${who}"`)}`);
       return;
     }
     if (text === '/quit' || text === '/exit') return shutdown();
     if (text === '/help') {
-      ui.print(dim('/invite  /who  /kick <name>  /quit   — "// text" chats without the agent'));
+      for (const line of tips(HINTS, innerWidth())) ui.print(`  ${line}`);
       return;
     }
     handleHumanLine(opts.name, text);
   }
 
-  function printInvite(): void {
+  /** The invite block: one join command per reachable address. */
+  function inviteRows(): string[] {
     const addrs = lanAddresses();
-    if (addrs.length === 0) {
-      ui.print(red('no network address found — are you online?'));
-      return;
-    }
-    ui.print('');
-    ui.print(bold('invite (same wifi or VPN):'));
-    for (const ip of addrs) ui.print(green(`  couchcoop join ${ip}:${opts.port}#${token}`));
-    ui.print('');
+    if (addrs.length === 0) return [rust('no network address found — are you online?')];
+    const rows = [muted('send a teammate one of these')];
+    for (const ip of addrs) rows.push('', `  ${cream(`couchcoop join ${ip}:${opts.port}#${token}`)}`);
+    return rows;
+  }
+
+  /** Solo-mode start screen. */
+  function startPanel(): string[] {
+    const w = termWidth();
+    const inner = innerWidth(w);
+    const left = [sage(bold('hosting')), '', ...logoRows()];
+    const leftWidth = Math.max(...left.map(width), 16);
+    const right = [
+      muted('a shared session, with its own agent'),
+      '',
+      ...kv(
+        [
+          ['you', clay(bold(opts.name)) + muted(' (host)')],
+          ['project', tan(path.basename(process.cwd()))],
+          ['port', tan(String(opts.port))],
+          ['tools', opts.yolo ? amber('run here without asking (--yolo)') : muted('run here, you approve them')],
+        ],
+        8,
+      ),
+    ];
+    return frame(
+      [
+        ['', ...twoCol(left.map((r) => center(r, leftWidth)), right, leftWidth, inner), ''],
+        inviteRows(),
+        tips(HINTS, inner),
+      ],
+      { title: `couchcoop${VERSION ? ` v${VERSION}` : ''}`, width: w },
+    );
   }
 
   rl.on('line', handleHostLine);
@@ -178,7 +236,7 @@ export async function runHost(opts: HostOptions): Promise<void> {
 
   function handleAgentMessage(m: SDKMessage): void {
     if (m.type === 'system' && m.subtype === 'init') {
-      ui.print(dim(`session ${m.session_id} · model ${m.model}`));
+      ui.print(`  ${muted(`session ${m.session_id.slice(0, 8)} · model ${m.model}`)}`);
       return;
     }
     if (m.type === 'stream_event' && m.parent_tool_use_id === null) {
@@ -208,14 +266,13 @@ export async function runHost(opts: HostOptions): Promise<void> {
   }
 
   // ---- banner ----
-  ui.print(bold(`couchcoop — hosting on port ${opts.port} as ${opts.name}`));
-  printInvite();
+  ui.showWelcome(startPanel());
   rl.prompt();
 
   try {
     for await (const m of q) handleAgentMessage(m);
   } catch (err) {
-    ui.print(red(`agent loop crashed: ${err instanceof Error ? err.message : String(err)}`));
+    ui.print(`  ${rust('✗')} agent loop crashed: ${err instanceof Error ? err.message : String(err)}`);
   }
   shutdown();
 }

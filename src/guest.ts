@@ -1,8 +1,9 @@
 import * as readline from 'node:readline';
 import { WebSocket } from 'ws';
+import { center, clip, frame, innerWidth, kv, logoRows, termWidth, tips, twoCol, width } from './box.js';
 import type { ClientMsg, ServerMsg } from './protocol.js';
-import { UI } from './ui.js';
-import { bold, dim, green, red } from './util.js';
+import { formatRoster, UI } from './ui.js';
+import { bold, clay, muted, rust, sage, tan, VERSION } from './util.js';
 
 export interface GuestOptions {
   target: string; // host[:port][#token], with optional ws:// prefix
@@ -18,14 +19,49 @@ export function parseTarget(target: string): { url: string; token: string } | nu
   return { url: `ws://${hostPort}`, token: m[2] ?? '' };
 }
 
+const HINTS: [string, string][] = [
+  ['⏎', 'talk to claude and the room'],
+  ['//', 'humans only'],
+  ['/leave', 'exit'],
+];
+
+/**
+ * The join screen: who you are, whose session you're in, and what the two
+ * non-obvious keys do — laid out beside the couch.
+ */
+function welcomePanel(host: string, self: string, roster: string[], project?: string): string[] {
+  const w = termWidth();
+  const inner = innerWidth(w);
+
+  const left = [sage(bold(`welcome, ${self}`)), '', ...logoRows()];
+  const leftWidth = Math.max(...left.map(width), 16);
+
+  const details: [string, string][] = [['room', formatRoster(roster, host, self)]];
+  if (project) details.push(['project', tan(project)]);
+  details.push(['tools', muted('run on ') + clay(host) + muted("'s machine")]);
+
+  const right = [
+    muted("you're in ") + clay(bold(host)) + muted("'s session"),
+    '',
+    ...kv(details, 7),
+    '',
+    muted('everything you type goes to claude and to everyone here'),
+  ];
+
+  return frame([['', ...twoCol(left.map((r) => center(r, leftWidth)), right, leftWidth, inner), ''], tips(HINTS, inner)], {
+    title: `couchcoop${VERSION ? ` v${VERSION}` : ''}`,
+    width: w,
+  });
+}
+
 export async function runGuest(opts: GuestOptions): Promise<void> {
   const parsed = parseTarget(opts.target);
   if (!parsed) {
-    console.error(red(`invalid target "${opts.target}" — expected host:port#token`));
+    console.error(rust(`invalid target "${opts.target}" — expected host:port#token`));
     process.exit(1);
   }
 
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: '❯ ' });
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: `${sage('❯')} ` });
   const ui = new UI(rl);
   ui.selfName = opts.name;
   const ws = new WebSocket(parsed.url);
@@ -48,15 +84,12 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
         // Their name may have been deduped server-side (e.g. johan -> johan-2)
         const self = msg.roster.find((n) => n === opts.name || n.startsWith(`${opts.name}-`)) ?? opts.name;
         ui.selfName = self;
-        ui.print('');
-        ui.print(`  ${bold('couchcoop')} ${dim('·')} ${bold(msg.host)}${dim("'s session")}`);
-        ui.print(dim(`  du är ${self} · i rummet: ${msg.roster.join(', ')} · tools kör hos ${msg.host}`));
-        ui.print(dim(`  skriv = till agenten · "// text" = bara människor · /leave = lämna`));
+        ui.showWelcome(welcomePanel(msg.host, self, msg.roster, msg.project));
         if (msg.history.length > 0) {
-          ui.print(dim(`  ── historik (${msg.history.length} händelser) ──`));
+          ui.rule(`history · ${msg.history.length} events`);
           for (const ev of msg.history) ui.event(ev);
           ui.print('');
-          ui.print(dim('  ── live ──'));
+          ui.rule('live');
         }
         rl.prompt();
         break;
@@ -65,28 +98,29 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
         ui.event(msg.ev);
         break;
       case 'roster': {
-        // Live presence in the prompt: 👥 everyone else in the room
+        // Live presence in the prompt: who else is in the room with you
         const others = msg.roster.filter((n) => n !== ui.selfName);
-        rl.setPrompt(`${green(`👥 ${others.join(', ')}`)} ${dim('❯')} `);
+        const label = others.length > 0 ? `${muted(clip(`👥 ${others.join(' ')}`, 28))} ` : '';
+        rl.setPrompt(`${label}${sage('❯')} `);
         rl.prompt(true);
         break;
       }
       case 'denied':
-        ui.print(red(`join denied: ${msg.reason}`));
+        ui.print(rust(`join denied: ${msg.reason}`));
         process.exit(1);
         break;
       case 'kicked':
-        ui.print(red('you were kicked from the session'));
+        ui.print(rust('you were removed from the session'));
         process.exit(0);
     }
   });
 
   ws.on('close', () => {
-    ui.print(dim('disconnected — session over'));
+    ui.rule('disconnected · session over');
     process.exit(0);
   });
   ws.on('error', (err) => {
-    ui.print(red(`connection failed: ${err.message}`));
+    ui.print(rust(`connection failed: ${err.message}`));
     process.exit(1);
   });
 
@@ -101,7 +135,7 @@ export async function runGuest(opts: GuestOptions): Promise<void> {
       return;
     }
     if (text === '/help') {
-      ui.print(dim('/leave to exit — "// text" chats without the agent'));
+      for (const line of tips(HINTS, innerWidth())) ui.print(`  ${line}`);
       return;
     }
     ui.eraseInput(); // the broadcast echo renders it under our own header instead
