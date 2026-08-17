@@ -4,7 +4,7 @@ import { query, type SDKMessage, type SDKUserMessage, type PermissionResult } fr
 import { center, frame, innerWidth, kv, logoRows, termWidth, tips, twoCol, width } from './box.js';
 import { Room } from './room.js';
 import { formatRoster, UI } from './ui.js';
-import type { Ev } from './protocol.js';
+import { DEFAULT_PORT, type Ev } from './protocol.js';
 import {
   amber,
   bold,
@@ -24,6 +24,10 @@ export interface HostOptions {
   name: string;
   port: number;
   yolo: boolean;
+  /** User-chosen password guests must supply with --pass. Overrides --token. */
+  pass?: string;
+  /** Generate a random join token (--token). Ignored when pass is set. */
+  withToken?: boolean;
 }
 
 const ROOM_NOTE = (host: string) =>
@@ -41,7 +45,7 @@ const HINTS: [string, string][] = [
 ];
 
 export async function runHost(opts: HostOptions): Promise<void> {
-  const token = genToken();
+  const token = opts.pass ?? (opts.withToken ? genToken() : '');
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout, prompt: `${clay('❯')} ` });
   const ui = new UI(rl);
   ui.hostName = opts.name;
@@ -160,7 +164,11 @@ export async function runHost(opts: HostOptions): Promise<void> {
     const addrs = lanAddresses();
     if (addrs.length === 0) return [rust('no network address found — are you online?')];
     const rows = [muted('send a teammate one of these')];
-    for (const ip of addrs) rows.push('', `  ${cream(`couchcoop join ${ip}:${opts.port}#${token}`)}`);
+    for (const ip of addrs) {
+      const target = `${ip}${opts.port === DEFAULT_PORT ? '' : `:${opts.port}`}${!opts.pass && token ? `#${token}` : ''}`;
+      rows.push('', `  ${cream(`couchcoop join ${target}${opts.pass ? ` --pass ${opts.pass}` : ''}`)}`);
+    }
+    if (!token) rows.push('', muted('open mode: anyone on the network can join — use --pass <word> or --token to lock'));
     return rows;
   }
 

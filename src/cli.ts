@@ -90,6 +90,8 @@ async function main(): Promise<void> {
         name,
         port,
         yolo: argv.includes('--yolo') || argv.includes('--dangerously-skip-permissions'),
+        pass,
+        withToken: argv.includes('--token'),
       });
     }
   }
